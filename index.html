@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMF CHAT</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--cyan:#00d9e8;--cyan2:#00aebb;--bg:#071317;--panel:#0d2026;--panel2:#102a31;--line:#19434b;--text:#e9fbfd;--muted:#8db0b6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+button,input{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;background:var(--cyan);color:#032126;font-weight:700}button.secondary{background:#15343b;color:var(--text);border:1px solid var(--line)}button:disabled{opacity:.5;cursor:not-allowed}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at top,#0b5660 0,#071317 58%)}
+.auth{width:min(430px,100%);background:rgba(13,32,38,.97);border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:0 18px 70px #0008}
+.logo{font-size:30px;font-weight:900;letter-spacing:1px;color:var(--cyan);margin-bottom:8px}.sub{color:var(--muted);margin:0 0 24px}
+.tabs{display:flex;gap:8px;margin-bottom:20px}.tabs button{flex:1}.tabs .active{background:var(--cyan);color:#032126}.tabs button:not(.active){background:#15343b;color:var(--muted)}
+label{display:block;font-size:13px;color:var(--muted);margin:14px 0 7px}input{width:100%;background:#071a1f;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px;outline:none}input:focus{border-color:var(--cyan)}.full{width:100%;margin-top:18px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px}.status{min-height:20px;color:var(--cyan);font-size:13px;margin-top:14px}.hidden{display:none!important}
+#app{height:100vh;display:flex;flex-direction:column}.topbar{height:64px;flex:none;background:#09262d;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 20px}.topbar .logo{font-size:23px;margin:0}.top-actions{display:flex;gap:8px;align-items:center}.layout{min-height:0;flex:1;display:grid;grid-template-columns:340px 1fr}.sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.sidehead{padding:17px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}.sidehead input{min-width:0}.chatlist{overflow:auto}.chatitem{padding:16px;border-bottom:1px solid #16363d;cursor:pointer}.chatitem:hover,.chatitem.selected{background:#12343b}.chatitem strong{display:block}.chatitem small{color:var(--muted)}.emptylist{padding:24px;color:var(--muted);font-size:14px}.conversation{display:flex;flex-direction:column;min-width:0;background:linear-gradient(140deg,#071317,#0a2026)}.convhead{height:65px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;font-weight:700}.welcome{margin:auto;text-align:center;color:var(--muted);padding:24px}.welcome h2{color:var(--cyan)}.mobile-back{display:none}
+@media(max-width:700px){#app{height:100dvh}.layout{display:block;position:relative}.sidebar{height:100%;border:0}.conversation{display:none;height:100%;position:absolute;inset:0}.layout.show-conversation .sidebar{display:none}.layout.show-conversation .conversation{display:flex}.mobile-back{display:inline-block;margin-right:12px;padding:8px 11px}}
+</style>
+</head>
+<body>
+<section id="authScreen" class="auth-wrap">
+ <div class="auth">
+  <div class="logo">DMF CHAT</div><p class="sub">Tu espacio para hablar.</p>
+  <div class="tabs"><button id="loginTab" class="active" type="button">Iniciar sesión</button><button id="registerTab" type="button" class="secondary">Registrarse</button></div>
+  <div id="credentials">
+   <label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com">
+   <label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña">
+   <button id="submitAuth" class="full">Iniciar sesión</button>
+  </div>
+  <div id="verifyBox" class="hidden">
+   <label for="otp">Código de verificación</label><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Código recibido por correo">
+   <button id="verifyBtn" class="full">Verificar correo</button>
+   <p class="hint">Introduce el código que te ha llegado al correo. Si recibes un enlace en vez de un código, habrá que cambiar la plantilla «Confirm signup» de Supabase para que incluya {{ .Token }}.</p>
+  </div>
+  <div id="authStatus" class="status" role="status"></div>
+  <p class="hint">Al registrarte, tendrás que confirmar que el correo electrónico es tuyo antes de poder entrar.</p>
+ </div>
+</section>
+<section id="app" class="hidden">
+ <header class="topbar"><div class="logo">DMF CHAT</div><div class="top-actions"><span id="userLabel" class="hint"></span><button id="logout" class="secondary">Cerrar sesión</button></div></header>
+ <main id="layout" class="layout">
+  <aside class="sidebar">
+   <div class="sidehead"><input id="searchChats" placeholder="Buscar chats o personas…"><button id="addBtn" title="Añadir persona o grupo">+</button></div>
+   <div id="chatList" class="chatlist"><div class="emptylist">Todavía no hay conversaciones.</div></div>
+  </aside>
+  <section class="conversation">
+   <div class="convhead"><button id="backBtn" class="secondary mobile-back">←</button><span id="convTitle">DMF CHAT</span></div>
+   <div class="welcome"><h2>¡Bienvenido a DMF CHAT!</h2><p>Selecciona una conversación para empezar.</p></div>
+  </section>
+ </main>
+</section>
+<script>
+const SUPABASE_URL = "https://zcdfgwrfdesusbthwssx.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ddp2359qCaWIzxdwm5_PXQ_T9-mgo5L";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let mode = "login";
+const $ = id => document.getElementById(id);
+function status(msg){$("authStatus").textContent=msg}
+function setMode(next){mode=next;$("loginTab").classList.toggle("active",next==="login");$("registerTab").classList.toggle("active",next==="register");$("loginTab").classList.toggle("secondary",next!=="login");$("registerTab").classList.toggle("secondary",next!=="register");$("submitAuth").textContent=next==="login"?"Iniciar sesión":"Crear cuenta";$("password").autocomplete=next==="login"?"current-password":"new-password";status("")}
+$("loginTab").onclick=()=>setMode("login");$("registerTab").onclick=()=>setMode("signup");
+$("submitAuth").onclick=async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){status("Escribe tu correo y tu contraseña.");return}
+ $("submitAuth").disabled=true;status("Un momento…");
+ try{
+  if(mode==="signup"){
+   const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+   if(error)throw error;
+   if(data.session){await enterApp(data.session.user)}else{$("credentials").classList.add("hidden");$("verifyBox").classList.remove("hidden");status("Te hemos enviado un código. Revisa tu correo y escríbelo aquí.")}
+  }else{
+   const {data,error}=await db.auth.signInWithPassword({email,password});
+   if(error)throw error;await enterApp(data.user);
+  }
+ }catch(e){status(readableError(e))}finally{$("submitAuth").disabled=false}
+};
+$("verifyBtn").onclick=async()=>{
+ const email=$("email").value.trim(),token=$("otp").value.trim();
+ if(!token){status("Escribe el código del correo.");return}
+ $("verifyBtn").disabled=true;status("Comprobando código…");
+ try{const {data,error}=await db.auth.verifyOtp({email,token,type:"signup"});if(error)throw error;await enterApp(data.user)}
+ catch(e){status(readableError(e))}finally{$("verifyBtn").disabled=false}
+};
+function readableError(e){const m=(e&&e.message)||"Ha ocurrido un error.";if(m.toLowerCase().includes("invalid login"))return"Correo o contraseña incorrectos.";if(m.toLowerCase().includes("email not confirmed"))return"Primero tienes que verificar tu correo.";if(m.toLowerCase().includes("rate limit"))return"Has solicitado demasiados correos. Espera un poco y vuelve a intentarlo.";return m}
+async function enterApp(user){$("authScreen").classList.add("hidden");$("app").classList.remove("hidden");$("userLabel").textContent=user.email||""}
+async function logout(){await db.auth.signOut();$("app").classList.add("hidden");$("authScreen").classList.remove("hidden");$("credentials").classList.remove("hidden");$("verifyBox").classList.add("hidden");$("otp").value="";status("Has cerrado sesión.")}
+$("logout").onclick=logout;
+$("addBtn").onclick=()=>alert("La creación de chats y grupos se conectará en la siguiente fase, cuando revisemos las políticas y tablas de Supabase.");
+$("backBtn").onclick=()=>$("layout").classList.remove("show-conversation");
+$("searchChats").addEventListener("input",()=>{});
+db.auth.getSession().then(({data})=>{if(data.session)enterApp(data.session.user)});
+db.auth.onAuthStateChange((_event,session)=>{if(!session){$("app").classList.add("hidden");$("authScreen").classList.remove("hidden")}});
+</script>
+</body>
+</html>
