@@ -6,90 +6,102 @@
 <title>DMF CHAT</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--cyan:#00d9e8;--cyan2:#00aebb;--bg:#071317;--panel:#0d2026;--panel2:#102a31;--line:#19434b;--text:#e9fbfd;--muted:#8db0b6}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
-button,input{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;background:var(--cyan);color:#032126;font-weight:700}button.secondary{background:#15343b;color:var(--text);border:1px solid var(--line)}button:disabled{opacity:.5;cursor:not-allowed}
-.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at top,#0b5660 0,#071317 58%)}
-.auth{width:min(430px,100%);background:rgba(13,32,38,.97);border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:0 18px 70px #0008}
-.logo{font-size:30px;font-weight:900;letter-spacing:1px;color:var(--cyan);margin-bottom:8px}.sub{color:var(--muted);margin:0 0 24px}
-.tabs{display:flex;gap:8px;margin-bottom:20px}.tabs button{flex:1}.tabs .active{background:var(--cyan);color:#032126}.tabs button:not(.active){background:#15343b;color:var(--muted)}
-label{display:block;font-size:13px;color:var(--muted);margin:14px 0 7px}input{width:100%;background:#071a1f;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px;outline:none}input:focus{border-color:var(--cyan)}.full{width:100%;margin-top:18px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px}.status{min-height:20px;color:var(--cyan);font-size:13px;margin-top:14px}.hidden{display:none!important}
-#app{height:100vh;display:flex;flex-direction:column}.topbar{height:64px;flex:none;background:#09262d;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 20px}.topbar .logo{font-size:23px;margin:0}.top-actions{display:flex;gap:8px;align-items:center}.layout{min-height:0;flex:1;display:grid;grid-template-columns:340px 1fr}.sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}.sidehead{padding:17px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}.sidehead input{min-width:0}.chatlist{overflow:auto}.chatitem{padding:16px;border-bottom:1px solid #16363d;cursor:pointer}.chatitem:hover,.chatitem.selected{background:#12343b}.chatitem strong{display:block}.chatitem small{color:var(--muted)}.emptylist{padding:24px;color:var(--muted);font-size:14px}.conversation{display:flex;flex-direction:column;min-width:0;background:linear-gradient(140deg,#071317,#0a2026)}.convhead{height:65px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;font-weight:700}.welcome{margin:auto;text-align:center;color:var(--muted);padding:24px}.welcome h2{color:var(--cyan)}.mobile-back{display:none}
-@media(max-width:700px){#app{height:100dvh}.layout{display:block;position:relative}.sidebar{height:100%;border:0}.conversation{display:none;height:100%;position:absolute;inset:0}.layout.show-conversation .sidebar{display:none}.layout.show-conversation .conversation{display:flex}.mobile-back{display:inline-block;margin-right:12px;padding:8px 11px}}
+:root{--bg:#07131d;--panel:#0d202d;--panel2:#102a3a;--cyan:#16c7e8;--cyan2:#087f9b;--text:#e9f7fb;--muted:#91aab5;--line:#1d3b4b;--danger:#ff6678}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#0d3446,#06111a 55%);color:var(--text);font:15px system-ui,Arial,sans-serif;min-height:100vh}
+button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;background:var(--cyan);color:#04202a;padding:10px 14px;font-weight:700}button.secondary{background:#173747;color:var(--text);border:1px solid var(--line)}button.danger{background:#542532;color:#ffe8eb}button:disabled{opacity:.5;cursor:not-allowed}
+input,textarea{background:#081923;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;width:100%;outline:none}input:focus,textarea:focus{border-color:var(--cyan)}.hidden{display:none!important}
+#authScreen{min-height:100vh;display:grid;place-items:center;padding:20px}.auth-card{width:min(430px,100%);background:#0c202d;border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 20px 70px #0008}.brand{font-size:28px;font-weight:900;letter-spacing:1px;color:var(--cyan);margin-bottom:6px}.sub{color:var(--muted);margin:0 0 22px}.tabs{display:flex;gap:8px;margin-bottom:18px}.tabs button{flex:1}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}.hint{font-size:12px;color:var(--muted);line-height:1.5}.status{min-height:22px;color:#9ce9f5;font-size:13px;margin-top:12px}
+#app{height:100dvh;min-height:540px;padding:14px}.shell{height:100%;max-width:1500px;margin:auto;display:grid;grid-template-columns:340px 1fr;background:#091923;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 20px 80px #0008}
+.sidebar{background:#0b1d29;border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0}.topbar{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}.topbar strong{font-size:19px;color:var(--cyan)}.profileline{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#16c7e8,#12617b);display:grid;place-items:center;font-weight:800;color:#00212b;flex-shrink:0;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.profileline .who{min-width:0;flex:1}.who small{display:block;color:var(--muted)}.search{padding:12px}.chatlist{overflow:auto;flex:1}.chatrow{padding:12px 14px;display:flex;gap:10px;align-items:center;border-top:1px solid #142e3b;cursor:pointer}.chatrow:hover,.chatrow.active{background:#123143}.chatrow .details{min-width:0;flex:1}.chatrow b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chatrow small{color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.main{display:flex;flex-direction:column;min-width:0;background:linear-gradient(#0b1b27,#07131d)}.chathead{height:68px;padding:12px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.chathead .headinfo{flex:1;min-width:0}.chathead small{display:block;color:var(--muted)}#messages{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:10px}.empty{margin:auto;text-align:center;color:var(--muted);max-width:360px}.bubble{max-width:min(75%,650px);padding:10px 12px;border-radius:14px;background:#153344;align-self:flex-start;overflow-wrap:anywhere}.bubble.mine{background:#075d73;align-self:flex-end}.bubble small{display:block;color:#b3d0d9;font-size:10px;margin-top:5px}.bubble .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.bubble .actions button{font-size:11px;padding:4px 7px}.composer{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:flex-end}.composer textarea{resize:none;max-height:120px;min-height:44px}.composer button{height:44px}.toolbar{display:flex;gap:6px}.mobileback{display:none}
+.modal{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:16px;z-index:5}.modalbox{width:min(460px,100%);max-height:85vh;overflow:auto;background:#0d202d;border:1px solid var(--line);border-radius:16px;padding:20px}.modalbox h3{margin-top:0}.modalbox .field{margin:10px 0}.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+@media(max-width:720px){#app{padding:0;min-height:100dvh}.shell{border:0;border-radius:0;grid-template-columns:1fr}.sidebar{grid-column:1;grid-row:1}.main{grid-column:1;grid-row:1;display:none}.shell.show-chat .sidebar{display:none}.shell.show-chat .main{display:flex}.mobileback{display:inline-block}.chathead{height:62px}.bubble{max-width:88%}}
 </style>
 </head>
 <body>
-<section id="authScreen" class="auth-wrap">
- <div class="auth">
-  <div class="logo">DMF CHAT</div><p class="sub">Tu espacio para hablar.</p>
-  <div class="tabs"><button id="loginTab" class="active" type="button">Iniciar sesión</button><button id="registerTab" type="button" class="secondary">Registrarse</button></div>
-  <div id="credentials">
-   <label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com">
-   <label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña">
-   <button id="submitAuth" class="full">Iniciar sesión</button>
-  </div>
-  <div id="verifyBox" class="hidden">
-   <label for="otp">Código de verificación</label><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Código recibido por correo">
-   <button id="verifyBtn" class="full">Verificar correo</button>
-   <p class="hint">Introduce el código que te ha llegado al correo. Si recibes un enlace en vez de un código, habrá que cambiar la plantilla «Confirm signup» de Supabase para que incluya {{ .Token }}.</p>
-  </div>
-  <div id="authStatus" class="status" role="status"></div>
-  <p class="hint">Al registrarte, tendrás que confirmar que el correo electrónico es tuyo antes de poder entrar.</p>
+<section id="authScreen">
+ <div class="auth-card">
+  <div class="brand">DMF CHAT</div><p class="sub">Tus conversaciones, en un solo lugar.</p>
+  <div class="tabs"><button id="tabLogin">Iniciar sesión</button><button class="secondary" id="tabRegister">Crear cuenta</button></div>
+  <form id="authForm">
+   <div class="field"><label>Correo electrónico</label><input id="email" type="email" autocomplete="email" required placeholder="tu correo"></div>
+   <div class="field"><label>Contraseña</label><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="Mínimo 6 caracteres"></div>
+   <div class="field hidden" id="nameField"><label>Nombre que verán los demás</label><input id="displayName" maxlength="40" placeholder="Tu nombre"></div>
+   <button id="authSubmit" type="submit" style="width:100%">Entrar</button>
+  </form>
+  <form id="otpForm" class="hidden">
+   <div class="field"><label>Código de 6 cifras enviado a tu correo</label><input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="123456"></div>
+   <button style="width:100%" type="submit">Verificar correo</button>
+   <button class="secondary" style="width:100%;margin-top:8px" id="resendOtp" type="button">Reenviar código</button>
+  </form>
+  <div class="hint">Para recibir el código, la plantilla de confirmación de Supabase debe incluir <b>{{ .Token }}</b>. No compartas tu contraseña ni claves secretas.</div>
+  <div id="authStatus" class="status"></div>
  </div>
 </section>
+
 <section id="app" class="hidden">
- <header class="topbar"><div class="logo">DMF CHAT</div><div class="top-actions"><span id="userLabel" class="hint"></span><button id="logout" class="secondary">Cerrar sesión</button></div></header>
- <main id="layout" class="layout">
+ <div class="shell" id="shell">
   <aside class="sidebar">
-   <div class="sidehead"><input id="searchChats" placeholder="Buscar chats o personas…"><button id="addBtn" title="Añadir persona o grupo">+</button></div>
-   <div id="chatList" class="chatlist"><div class="emptylist">Todavía no hay conversaciones.</div></div>
+   <div class="topbar"><strong>DMF CHAT</strong><div class="toolbar"><button class="secondary" id="newPrivate" title="Nuevo chat">＋</button><button class="secondary" id="newGroup" title="Crear grupo">👥</button><button class="secondary" id="logout" title="Cerrar sesión">↪</button></div></div>
+   <div class="profileline"><div class="avatar" id="myAvatar">?</div><div class="who"><b id="myName">Usuario</b><small id="myEmail"></small></div><button class="secondary" id="editProfile">Editar</button></div>
+   <div class="search"><input id="chatSearch" placeholder="Buscar conversaciones..."></div>
+   <div class="chatlist" id="chatList"><div class="empty">Tus chats aparecerán aquí.</div></div>
   </aside>
-  <section class="conversation">
-   <div class="convhead"><button id="backBtn" class="secondary mobile-back">←</button><span id="convTitle">DMF CHAT</span></div>
-   <div class="welcome"><h2>¡Bienvenido a DMF CHAT!</h2><p>Selecciona una conversación para empezar.</p></div>
-  </section>
- </main>
+  <main class="main">
+   <header class="chathead"><button class="secondary mobileback" id="backToList">←</button><div class="avatar" id="activeAvatar">DM</div><div class="headinfo"><b id="activeTitle">DMF CHAT</b><small id="activeSub">Selecciona una conversación</small></div><div class="toolbar" id="chatTools"></div></header>
+   <div id="messages"><div class="empty"><h2>💬 DMF CHAT</h2>Selecciona un chat o crea uno nuevo para empezar.</div></div>
+   <form class="composer hidden" id="composer"><textarea id="messageInput" rows="1" placeholder="Escribe un mensaje..." required></textarea><button type="submit">Enviar</button></form>
+  </main>
+ </div>
 </section>
+<div id="modal" class="modal hidden"><div class="modalbox"><h3 id="modalTitle"></h3><div id="modalBody"></div><div class="modalactions"><button class="secondary" id="modalCancel">Cancelar</button><button id="modalOk">Continuar</button></div></div></div>
+
 <script>
-const SUPABASE_URL = "https://zcdfgwrfdesusbthwssx.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_ddp2359qCaWIzxdwm5_PXQ_T9-mgo5L";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let mode = "login";
-const $ = id => document.getElementById(id);
-function status(msg){$("authStatus").textContent=msg}
-function setMode(next){mode=next;$("loginTab").classList.toggle("active",next==="login");$("registerTab").classList.toggle("active",next==="register");$("loginTab").classList.toggle("secondary",next!=="login");$("registerTab").classList.toggle("secondary",next!=="register");$("submitAuth").textContent=next==="login"?"Iniciar sesión":"Crear cuenta";$("password").autocomplete=next==="login"?"current-password":"new-password";status("")}
-$("loginTab").onclick=()=>setMode("login");$("registerTab").onclick=()=>setMode("signup");
-$("submitAuth").onclick=async()=>{
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||!password){status("Escribe tu correo y tu contraseña.");return}
- $("submitAuth").disabled=true;status("Un momento…");
- try{
-  if(mode==="signup"){
-   const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
-   if(error)throw error;
-   if(data.session){await enterApp(data.session.user)}else{$("credentials").classList.add("hidden");$("verifyBox").classList.remove("hidden");status("Te hemos enviado un código. Revisa tu correo y escríbelo aquí.")}
-  }else{
-   const {data,error}=await db.auth.signInWithPassword({email,password});
-   if(error)throw error;await enterApp(data.user);
-  }
- }catch(e){status(readableError(e))}finally{$("submitAuth").disabled=false}
-};
-$("verifyBtn").onclick=async()=>{
- const email=$("email").value.trim(),token=$("otp").value.trim();
- if(!token){status("Escribe el código del correo.");return}
- $("verifyBtn").disabled=true;status("Comprobando código…");
- try{const {data,error}=await db.auth.verifyOtp({email,token,type:"signup"});if(error)throw error;await enterApp(data.user)}
- catch(e){status(readableError(e))}finally{$("verifyBtn").disabled=false}
-};
-function readableError(e){const m=(e&&e.message)||"Ha ocurrido un error.";if(m.toLowerCase().includes("invalid login"))return"Correo o contraseña incorrectos.";if(m.toLowerCase().includes("email not confirmed"))return"Primero tienes que verificar tu correo.";if(m.toLowerCase().includes("rate limit"))return"Has solicitado demasiados correos. Espera un poco y vuelve a intentarlo.";return m}
-async function enterApp(user){$("authScreen").classList.add("hidden");$("app").classList.remove("hidden");$("userLabel").textContent=user.email||""}
-async function logout(){await db.auth.signOut();$("app").classList.add("hidden");$("authScreen").classList.remove("hidden");$("credentials").classList.remove("hidden");$("verifyBox").classList.add("hidden");$("otp").value="";status("Has cerrado sesión.")}
-$("logout").onclick=logout;
-$("addBtn").onclick=()=>alert("La creación de chats y grupos se conectará en la siguiente fase, cuando revisemos las políticas y tablas de Supabase.");
-$("backBtn").onclick=()=>$("layout").classList.remove("show-conversation");
-$("searchChats").addEventListener("input",()=>{});
-db.auth.getSession().then(({data})=>{if(data.session)enterApp(data.session.user)});
-db.auth.onAuthStateChange((_event,session)=>{if(!session){$("app").classList.add("hidden");$("authScreen").classList.remove("hidden")}});
+(() => {
+ const SUPABASE_URL = 'https://zcdfgwrfdesusbthwssx.supabase.co';
+ const SUPABASE_ANON_KEY = 'sb_publishable_ddp2359qCaWIzxdwm5_PXQ_T9-mgo5L';
+ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+ const $ = id => document.getElementById(id);
+ let mode='login', user=null, profile=null, activeChat=null, chats=[], messages=[], realtime=null, pendingEmail='';
+ const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const say = (id,msg)=>$(id).textContent=msg;
+ function errorText(e){const m=e?.message||String(e); if(/row-level security/i.test(m))return 'Supabase ha bloqueado esta acción por sus permisos. Comprueba el SQL y que tu usuario pertenezca al chat.'; if(/Invalid login credentials/i.test(m))return 'Correo o contraseña incorrectos.'; if(/Email not confirmed/i.test(m))return 'Tu correo aún no está confirmado. Introduce el código que te enviamos.'; return m;}
+ function setMode(m){mode=m;$('nameField').classList.toggle('hidden',m!=='register');$('tabLogin').classList.toggle('secondary',m!=='login');$('tabRegister').classList.toggle('secondary',m!=='register');$('authSubmit').textContent=m==='login'?'Entrar':'Crear cuenta';$('password').autocomplete=m==='login'?'current-password':'new-password';}
+ $('tabLogin').onclick=()=>setMode('login');$('tabRegister').onclick=()=>setMode('register');
+ $('authForm').onsubmit=async e=>{e.preventDefault();say('authStatus','Procesando...');const email=$('email').value.trim().toLowerCase(),password=$('password').value;
+  try{
+   if(mode==='register'){const {data,error}=await db.auth.signUp({email,password,options:{data:{display_name:$('displayName').value.trim()||'Usuario'},emailRedirectTo:location.href.split('#')[0]}});if(error)throw error;pendingEmail=email;$('authForm').classList.add('hidden');$('otpForm').classList.remove('hidden');say('authStatus',data.session?'Cuenta creada. Entrando...':'Te hemos enviado un código de 6 cifras.');if(data.session)await enter(data.session.user);}
+   else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;await enter(data.user);}
+  }catch(err){say('authStatus',errorText(err));}
+ };
+ $('otpForm').onsubmit=async e=>{e.preventDefault();say('authStatus','Verificando código...');try{const {data,error}=await db.auth.verifyOtp({email:pendingEmail||$('email').value.trim().toLowerCase(),token:$('otp').value.trim(),type:'signup'});if(error)throw error;$('otpForm').classList.add('hidden');$('authForm').classList.remove('hidden');await enter(data.user);}catch(err){say('authStatus',errorText(err));}};
+ $('resendOtp').onclick=async()=>{try{const email=pendingEmail||$('email').value.trim().toLowerCase();const {error}=await db.auth.resend({type:'signup',email});if(error)throw error;say('authStatus','Código reenviado. Revisa también spam.');}catch(e){say('authStatus',errorText(e));}};
+ async function enter(u){user=u;const {data,error}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;profile=data;if(!profile){const {data:d,error:er}=await db.from('profiles').insert({id:user.id,display_name:user.user_metadata?.display_name||user.email?.split('@')[0]||'Usuario'}).select().single();if(er)throw er;profile=d;} $('authScreen').classList.add('hidden');$('app').classList.remove('hidden');say('myName',profile.display_name||'Usuario');say('myEmail',user.email||'');$('myAvatar').textContent=(profile.display_name||'U').slice(0,1).toUpperCase();if(profile.avatar_url)$('myAvatar').innerHTML=`<img src="${esc(profile.avatar_url)}">`;await loadChats();}
+ async function loadChats(){const {data:mem,error}=await db.from('chat_members').select('chat_id,member_role,joined_at').eq('user_id',user.id);if(error)throw error;const ids=(mem||[]).map(x=>x.chat_id);if(!ids.length){chats=[];renderChats();return;}const {data:cs,error:ce}=await db.from('chats').select('*').in('id',ids).order('created_at',{ascending:false});if(ce)throw ce;const {data:ms}=await db.from('chat_members').select('chat_id,user_id,member_role').in('chat_id',ids);const {data:ps}=await db.rpc('get_chat_profiles',{p_chat_ids:ids});const {data:last}=await db.from('messages').select('chat_id,content,created_at').in('chat_id',ids).order('created_at',{ascending:false});const {data:settings}=await db.from('chat_user_settings').select('*').eq('user_id',user.id).in('chat_id',ids);chats=(cs||[]).map(c=>{const members=(ms||[]).filter(m=>m.chat_id===c.id);const other=members.find(m=>m.user_id!==user.id);const p=(ps||[]).find(x=>x.id===other?.user_id);const pref=(settings||[]).find(x=>x.chat_id===c.id);return {...c,members,otherProfile:p,last:(last||[]).find(x=>x.chat_id===c.id),is_pinned:pref?.is_pinned||false,is_archived:pref?.is_archived||false};});renderChats();}
+ function titleFor(c){return c.chat_type==='group'?(c.title||'Grupo'):(c.otherProfile?.display_name||'Chat privado');}
+ function renderChats(){const q=$('chatSearch').value.toLowerCase();const list=chats.filter(c=>!c.is_archived&&titleFor(c).toLowerCase().includes(q)).sort((a,b)=>Number(!!b.is_pinned)-Number(!!a.is_pinned));$('chatList').innerHTML=list.length?list.map(c=>`<div class="chatrow ${activeChat?.id===c.id?'active':''}" data-id="${c.id}"><div class="avatar">${esc(titleFor(c).slice(0,1).toUpperCase())}</div><div class="details"><b>${esc(titleFor(c))}</b><small>${esc(c.last?.content|| (c.chat_type==='group'?'Grupo':'Conversación privada'))}</small></div></div>`).join(''):'<div class="empty" style="padding:24px">No hay conversaciones todavía. Pulsa ＋ para empezar.</div>';document.querySelectorAll('.chatrow').forEach(el=>el.onclick=()=>openChat(el.dataset.id));}
+ $('chatSearch').oninput=renderChats;
+ async function openChat(id){activeChat=chats.find(c=>c.id===id);if(!activeChat)return;$('shell').classList.add('show-chat');say('activeTitle',titleFor(activeChat));say('activeSub',activeChat.chat_type==='group'?`${activeChat.members.length} participantes`:'Chat privado');$('activeAvatar').textContent=titleFor(activeChat).slice(0,1).toUpperCase();$('composer').classList.remove('hidden');$('chatTools').innerHTML='<button class="secondary" id="chatOptions">⋯</button>'; $('chatOptions').onclick=chatOptions;await loadMessages();subscribe();}
+ $('backToList').onclick=()=>$('shell').classList.remove('show-chat');
+ async function loadMessages(){const {data,error}=await db.from('messages').select('*').eq('chat_id',activeChat.id).order('created_at',{ascending:true});if(error){$('messages').innerHTML=`<div class="empty">${esc(errorText(error))}</div>`;return;}messages=data||[];renderMessages();}
+ function renderMessages(){if(!messages.length){$('messages').innerHTML='<div class="empty">Todavía no hay mensajes. ¡Empieza la conversación!</div>';return;}$('messages').innerHTML=messages.map(m=>{const mine=m.sender_id===user.id;const stamp=new Date(m.created_at).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'});return `<div class="bubble ${mine?'mine':''}"><div>${esc(m.content)}</div>${m.edited_at?'<small>editado</small>':''}<small>${stamp}</small><div class="actions">${mine?`<button class="secondary" data-edit="${m.id}">Editar</button><button class="danger" data-del="${m.id}">Borrar</button>`:''}<button class="secondary" data-react="${m.id}">❤️</button>${m.is_pinned?'<small>📌 Fijado</small>':`<button class="secondary" data-pin="${m.id}">Fijar</button>`}</div></div>`}).join('');$('messages').scrollTop=$('messages').scrollHeight;document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editMessage(b.dataset.edit));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteMessage(b.dataset.del));document.querySelectorAll('[data-react]').forEach(b=>b.onclick=()=>reactMessage(b.dataset.react));document.querySelectorAll('[data-pin]').forEach(b=>b.onclick=()=>pinMessage(b.dataset.pin));}
+ $('composer').onsubmit=async e=>{e.preventDefault();const content=$('messageInput').value.trim();if(!content||!activeChat)return;const {error}=await db.from('messages').insert({chat_id:activeChat.id,sender_id:user.id,content});if(error){alert(errorText(error));return;}$('messageInput').value='';await loadMessages();await loadChats();};
+ async function editMessage(id){const m=messages.find(x=>x.id===id);const v=prompt('Editar mensaje:',m?.content||'');if(v===null||!v.trim())return;const {error}=await db.from('messages').update({content:v.trim(),edited_at:new Date().toISOString()}).eq('id',id).eq('sender_id',user.id);if(error)alert(errorText(error));else await loadMessages();}
+ async function deleteMessage(id){if(!confirm('¿Borrar este mensaje para todos?'))return;const {error}=await db.from('messages').delete().eq('id',id).eq('sender_id',user.id);if(error)alert(errorText(error));else await loadMessages();}
+ async function reactMessage(id){const emoji=prompt('Escribe una reacción (por ejemplo ❤️ 😂 👍):','❤️');if(!emoji)return;const {error}=await db.from('message_reactions').insert({message_id:id,user_id:user.id,emoji});if(error)alert(errorText(error));else alert('Reacción añadida.');}
+ async function pinMessage(id){const {error}=await db.from('messages').update({is_pinned:true}).eq('id',id);if(error)alert(errorText(error));else await loadMessages();}
+ function subscribe(){if(realtime){db.removeChannel(realtime);realtime=null;}realtime=db.channel('chat-'+activeChat.id).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'chat_id=eq.'+activeChat.id},()=>loadMessages()).subscribe();}
+ function modal(title,body,ok){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modal').classList.remove('hidden');$('modalOk').onclick=async()=>{try{await ok();$('modal').classList.add('hidden');}catch(e){alert(errorText(e));}};}
+ $('modalCancel').onclick=()=>$('modal').classList.add('hidden');
+ $('newPrivate').onclick=()=>modal('Nuevo chat privado',`<div class="field"><label>Correo exacto de la persona</label><input id="targetEmail" type="email" placeholder="persona@correo.com"></div><p class="hint">Por privacidad, busca usando el correo completo.</p>`,async()=>{const email=$('targetEmail').value.trim().toLowerCase();if(!email)throw Error('Escribe un correo.');const {data,error}=await db.rpc('find_user_by_email',{p_email:email});if(error)throw error;if(!data?.length)throw Error('No se encontró ese usuario. Comprueba el correo y que tenga cuenta.');const person=data[0];if(person.user_id===user.id)throw Error('Ese es tu propio correo.');const existing=chats.find(c=>c.chat_type!=='group'&&c.members.some(m=>m.user_id===person.user_id));if(existing){await openChat(existing.id);return;}const {data:c,error:ce}=await db.from('chats').insert({chat_type:'private',created_by:user.id}).select().single();if(ce)throw ce;let {error:me}=await db.from('chat_members').insert({chat_id:c.id,user_id:user.id,member_role:'admin'});if(me)throw me;const {error:them}=await db.from('chat_members').insert({chat_id:c.id,user_id:person.user_id,member_role:'member'});if(them)throw them;await loadChats();await openChat(c.id);});
+ $('newGroup').onclick=()=>modal('Crear grupo',`<div class="field"><label>Nombre del grupo</label><input id="groupTitle" maxlength="60" placeholder="Mi grupo"></div><div class="field"><label>Correos de participantes (separados por comas)</label><textarea id="groupEmails" rows="3" placeholder="persona1@correo.com, persona2@correo.com"></textarea></div><p class="hint">Solo se añadirán usuarios registrados. Tú serás administrador.</p>`,async()=>{const title=$('groupTitle').value.trim();if(!title)throw Error('Escribe un nombre para el grupo.');const emails=$('groupEmails').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);const people=[];for(const email of emails){const {data,error}=await db.rpc('find_user_by_email',{p_email:email});if(error)throw error;if(data?.[0]&&data[0].user_id!==user.id)people.push(data[0]);}const {data:c,error:ce}=await db.from('chats').insert({chat_type:'group',title,created_by:user.id}).select().single();if(ce)throw ce;const rows=[{chat_id:c.id,user_id:user.id,member_role:'admin'},...people.map(p=>({chat_id:c.id,user_id:p.user_id,member_role:'member'}))];const {error}=await db.from('chat_members').insert(rows);if(error)throw error;await loadChats();await openChat(c.id);});
+ async function setting(field,value){const {data:old,error}=await db.from('chat_user_settings').select('*').eq('chat_id',activeChat.id).eq('user_id',user.id).maybeSingle();if(error)throw error;if(old){const {error:e}=await db.from('chat_user_settings').update({[field]:value}).eq('chat_id',activeChat.id).eq('user_id',user.id);if(e)throw e;}else{const {error:e}=await db.from('chat_user_settings').insert({chat_id:activeChat.id,user_id:user.id,[field]:value});if(e)throw e;}}
+ async function chatOptions(){const choice=prompt('Opciones del chat:\n1 = Fijar conversación\n2 = Archivar\n3 = Silenciar\n4 = Vaciar solo para mí\n5 = Salir del grupo\n6 = Ver participantes');if(!choice)return;if(choice==='1')await setting('is_pinned',true);else if(choice==='2'){await setting('is_archived',true);activeChat=null;$('shell').classList.remove('show-chat');}else if(choice==='3')await setting('is_muted',true);else if(choice==='4'){const {data:latest}=await db.from('messages').select('created_at').eq('chat_id',activeChat.id).order('created_at',{ascending:false}).limit(1);await setting('cleared_at',latest?.[0]?.created_at||new Date().toISOString());await loadMessages();}else if(choice==='5'&&activeChat.chat_type==='group'){if(confirm('¿Salir de este grupo?')){const {error}=await db.from('chat_members').delete().eq('chat_id',activeChat.id).eq('user_id',user.id);if(error)throw error;activeChat=null;$('shell').classList.remove('show-chat');}}else if(choice==='6'){alert(activeChat.members.map(m=>m.user_id===user.id?'Tú':m.user_id).join('\n'));}await loadChats();}
+ $('editProfile').onclick=()=>modal('Editar perfil',`<div class="field"><label>Nombre visible</label><input id="newName" maxlength="40" value="${esc(profile.display_name||'')}"></div><div class="field"><label>URL de foto (opcional)</label><input id="newAvatar" type="url" value="${esc(profile.avatar_url||'')}" placeholder="https://..."></div>`,async()=>{const display_name=$('newName').value.trim()||'Usuario',avatar_url=$('newAvatar').value.trim()||null;const {data,error}=await db.from('profiles').update({display_name,avatar_url}).eq('id',user.id).select().single();if(error)throw error;profile=data;say('myName',display_name);$('myAvatar').textContent=display_name.slice(0,1).toUpperCase();if(avatar_url)$('myAvatar').innerHTML=`<img src="${esc(avatar_url)}">`;});
+ $('logout').onclick=async()=>{if(realtime)db.removeChannel(realtime);await db.auth.signOut();location.reload();};
+ db.auth.getSession().then(async({data})=>{if(data.session){try{await enter(data.session.user);}catch(e){say('authStatus',errorText(e));}}});
+ db.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_OUT'){location.reload();}});
+})();
 </script>
 </body>
 </html>
