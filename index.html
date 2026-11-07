@@ -87,15 +87,14 @@ input,textarea{background:#081923;color:var(--text);border:1px solid var(--line)
  async function updateUnread(){
   const me=user?.id, seq=++countGeneration;if(!me){announceCount(null);return;}
   try{
-   const members=await db.from('chat_members').select('chat_id').eq('user_id',me);if(members.error)throw members.error;
-   const ids=(members.data||[]).map(x=>x.chat_id);
+   let ids=[],offset=0;
+   for(;;){const members=await db.from('chat_members').select('chat_id').eq('user_id',me).order('chat_id',{ascending:true}).range(offset,offset+499);if(members.error)throw members.error;const batch=members.data||[];ids.push(...batch.map(x=>x.chat_id));if(batch.length<500)break;offset+=batch.length;} 
    if(!ids.length){if(seq===countGeneration&&user?.id===me)announceCount(0);return;}
-   const settings=await db.from('chat_user_settings').select('chat_id,cleared_at').eq('user_id',me).in('chat_id',ids);if(settings.error)throw settings.error;
-   const cleared=new Map((settings.data||[]).map(x=>[x.chat_id,x.cleared_at]));
    let total=0;
    for(const id of ids){
+    const settings=await db.from('chat_user_settings').select('cleared_at').eq('user_id',me).eq('chat_id',id).maybeSingle();if(settings.error)throw settings.error;
     let q=db.from('messages').select('id,message_reads!left()', {count:'exact',head:true}).eq('chat_id',id).neq('sender_id',me).eq('message_reads.user_id',me).is('message_reads',null);
-    if(cleared.get(id))q=q.gt('created_at',cleared.get(id));
+    if(settings.data?.cleared_at)q=q.gt('created_at',settings.data.cleared_at);
     const r=await q;if(r.error||!Number.isSafeInteger(r.count))throw r.error||Error('No se pudo contar');total+=r.count;
    }
    if(seq===countGeneration&&user?.id===me)announceCount(total);
