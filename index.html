@@ -69,7 +69,7 @@ input,textarea{background:#081923;color:var(--text);border:1px solid var(--line)
  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  const $ = id => document.getElementById(id);
  let mode='login', user=null, profile=null, activeChat=null, chats=[], messages=[], realtime=null, pendingEmail='', showingArchived=false, replyTarget=null;
- const EMBED_ORIGIN='https://diegomartinez-cmyk.github.io';
+ const EMBED_ORIGIN='https://bruh-portal.github.io';
  const embedded=window.parent!==window;
  // Without a cooperating parent, prefer not to mark messages read.
  let hostVisible=!embedded, hostStateKnown=!embedded, lastUnread=null, countGeneration=0, messageGeneration=0, temporaryChatAction=false, countChannel=null, countTimer=null, loggedUserId=null, unreadTimer=null;
